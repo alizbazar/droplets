@@ -34,9 +34,9 @@ function updatePageWithTrackDetails() {
     } else {
         var track = playerTrackInfo.data;
 		
+		requestPageIds(player.track.data, false);
 		queryNewsForArtist(track.album.artist.name);
 		runProductSearch(track);
-		requestPageIds(player.track.data, false);
     }
 }
 

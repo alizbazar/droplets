@@ -1,6 +1,21 @@
 #container {
-	background-color: blue;
-	width: 100%;
+}
+
+#left {
+	width: 203px;
+	float: left;
+}
+
+#right {
+	width:822px;
+	float: left;
+}
+
+#header {
+	height: 100px;
+	width: 822px;
+	background-color: red;
+	border-bottom: 3px solid white;
 }
 
 #sink {

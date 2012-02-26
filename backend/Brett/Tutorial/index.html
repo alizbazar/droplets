@@ -2,7 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>My First App</title>
+	<title>Museik</title>
+	<link rel="stylesheet" href="sp://import/css/adam.css">
 	<link rel="stylesheet" href="sp://import/css/shared.css">
 	<link rel="stylesheet" href="sp://import/css/api.css">
 	<link rel="stylesheet" href="tutorial.css">
@@ -12,12 +13,18 @@
 </head>
 <body onload="sp = getSpotifyApi(1); tutorial = sp.require('tutorial'); tutorial.init();">
 	<div id="container">
-		<div id="sink">
-			<div id="pipe1" class="pipe">
+		<div id="left">
+		</div>
+		<div id="right">
+			<div id="header">
 			</div>
-			<div id="pipe2" class="pipe">
-			</div>
-			<div id="pipe3" class="pipe">
+			<div id="sink">
+				<div id="pipe1" class="pipe">
+				</div>
+				<div id="pipe2" class="pipe">
+				</div>
+				<div id="pipe3" class="pipe">
+				</div>
 			</div>
 		</div>
 	</div>
