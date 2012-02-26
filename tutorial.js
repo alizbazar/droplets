@@ -20,6 +20,10 @@ function init() {
             updatePageWithTrackDetails();
         }
     });
+    $('#sink').on('click', 'a.addDrop', function(e) {
+        $(this).toggleClass('selected');
+        e.preventDefault();
+    });
 }
 
 function updatePageWithTrackDetails() {
@@ -51,9 +55,10 @@ function createDrop(title, url, imgurl) {
 	var pipeid = 'pipe' + randomnumber;
 	
 	var html = "<div class='drop'>"
-	html = html + "<img src='" + imgurl + "' />"
-	html = html + "<p>" + title + "</p>"
-	html = html + "</div>"
+	            + "<img src='" + imgurl + "' />"
+                + "<p>" + title + "</p>"
+	            + '<a href="#" class="addDrop"><span class="add_drop_icon sprite"></span></a>'
+	            + "</div>";
 	
 	$("#" + pipeid).append(html);
 	$(".drop:last").click( function() {
@@ -64,7 +69,6 @@ function createDrop(title, url, imgurl) {
 function runProductSearch(track) {
 	$.getJSON('http://sandbox.thinglink.com:8080/thinglink/action/amazonProductSearch', {query: track.artists[0].name}, function(data) {
 		for(var i in data) {
-			console.log(data);
 			var title = data[i].text,
 				link = data[i].url,
 				icon = data[i].icon.replace("SL75", "SL300");
@@ -163,7 +167,7 @@ function queryNewsForArtist(artist) {
 				var news = data.response.news;
 			
 				for (var i = 0; i < 5; i++) {
-					createDrop(news[i].name, news[i].url, 'echonest.jpg');
+					createDrop(news[i].name, news[i].url, 'echonest_logo.png');
 				}
 			});
 	}

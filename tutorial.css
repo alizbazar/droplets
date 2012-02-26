@@ -49,7 +49,11 @@ html {
 	width: 214px;
 	padding: 7px;
 	border: 3px solid #bbcfe5;
-	margin: 40px 20px 10px 20px;
+	margin: 20px 20px 10px 20px;
+}
+
+#pipe1 .drop {
+    margin-left: 0;
 }
 
 .drop img {
@@ -59,8 +63,14 @@ html {
 
 .drop p {
 	margin-top: 0;
-	font-style: Futura;
-	font-size: 18px;
+	font-style: Helvetica;
+	font-size: 16px;
+}
+
+a.addDrop {
+    display: block;
+    height: 30px;
+    margin-top: 10px;
 }
 
 #left {
@@ -73,9 +83,6 @@ html {
 	width: 300px;
 	height: 200px;
 	float: left;
-}
-
-#right p {
 }
 
 #albumCover {
@@ -94,3 +101,22 @@ html {
 	margin-left: auto;
 	margin-right: auto;
 }
+
+/* Sprites */
+.sprite{background: url(sprite.png) no-repeat top left;}
+a.addDrop span {display: block; margin-left: auto; margin-right: auto;}
+a.addDrop .add_drop_icon{ background-position: 0 0; width: 27px; height: 27px;} 
+a.addDrop:hover .add_drop_icon{ background-position: 0 -77px; width: 27px; height: 27px; } 
+.comment_icon{ background-position: 0 -154px; width: 27px; height: 21px; } 
+.drop_icon{ background-position: 0 -225px; width: 21px; height: 25px; } 
+.heart_icon{ background-position: 0 -300px; width: 25px; height: 22px; } 
+a.addDrop.selected .add_drop_icon { background-position: 0 -372px; width: 26px; height: 27px; } 
+a.addDrop.selected:hover .add_drop_icon { background-position: 0 -449px; width: 26px; height: 27px; } 
+.share_rollover_off{ background-position: 0 -526px; width: 120px; height: 80px; } 
+.share_rollover_on{ background-position: 0 -656px; width: 120px; height: 80px; } 
+.spotify_rollover_off{ background-position: 0 -786px; width: 80px; height: 81px; } 
+.spotify_rollover_on{ background-position: 0 -917px; width: 80px; height: 81px; } 
+.video_play_rollover_off{ background-position: 0 -1048px; width: 80px; height: 81px; } 
+.video_play_rollover_on{ background-position: 0 -1179px; width: 80px; height: 81px; } 
+.your_drop_rollover_off{ background-position: 0 -1310px; width: 92px; height: 121px; } 
+.your_drop_rollover_on{ background-position: 0 -1481px; width: 92px; height: 121px; }
