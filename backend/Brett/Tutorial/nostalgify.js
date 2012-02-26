@@ -1,151 +1,97 @@
 var sp = getSpotifyApi(1);
 var models = sp.require('sp://import/scripts/api/models');
 var player = models.player;
+var playlist = models.playlist;
 
-var ECHO_NEST_KEY =  'EOGLVCKR6RT6NR3DK';
+var billboardApiKey="amctfu77bu7amyhqud9bfcqb";
+var echonestApiKey="XO7WUUP32BZFOV4KR";
 
+//last.fm
+//Your API Key is 7211d25cfb4e693c7d7ed8815aec8f7d
+var lastFmKey = "7211d25cfb4e693c7d7ed8815aec8f7d";
+//Your secret is 1dd2ec920b3c42580b10547023a8c3e5
+//http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=b25b959554ed76058ac220b7b2e0a026&artist=Cher&album=Believe
+
+var lastAlbum = "";
+
+//TODO: get around this bogus global
 var stopNow = false;
 
 exports.init = init;
 
-function init() {
+function init() 
+{
+	if (player.track == null) 
+	{
+		Song.innerText = "Nothing playing!";
+	}
+	else 
+	{		
+		stopNow = false;
+		lastAlbum = player.track.album.name;
+		console.log("albumName=" + player.track.album.name + " lastAlbum=" + lastAlbum);
 
-    updatePageWithTrackDetails();
+		updateTrackDetails(player.track.data);
+		searchWikiForAlbum(player.track.data);
 
-    player.observe(models.EVENT.CHANGE, function (e) {
-
-        // Only update the page if the track changed
-        if (e.data.curtrack == true) {
-            updatePageWithTrackDetails();
-        }
-    });
-}
-
-function updatePageWithTrackDetails() {
-
-    var header = document.getElementById("header");
-
-    // This will be null if nothing is playing.
-    var playerTrackInfo = player.track;
-
-    if (playerTrackInfo == null) {
-        $("#track").text("Nothing playing!");
-    } else {
-        var track = playerTrackInfo.data;
-		
-		queryNewsForArtist(track.album.artist.name);
-		requestPageIds(player.track.data, false);
-    }
-}
-
-function createDrop(title, url, imgurl) {
-	var html = "<div class='drop'>"
-	html = html + "<img src='" + imgurl + "' />"
-	html = html + "<p>" + title + "</p>"
-	html = html + "</div>"
+//		getLastFmReleaseDate(player.track.data);
+//		searchEchoNestForArtistInfo(player.track.data);
+	}
 	
-	$("#drops").append(html);
-	$(".drop:last").click( function() {
-		//something here
-	});
-}
-
-function createDropForUri(uri) {
-	$("#temp").text(uri);
-}
-
-function queryWikipediaForFilmsInYear(normalizedDate) {
-	var year = normalizedDate.toString('yyyy');
-
-	var titles = year + ' in film';
-	$.getJSON("http://en.wikipedia.org/w/api.php?",
+	player.observe(models.EVENT.CHANGE, 
+		function (e) 
 		{
-			'action': 'query',
-			'titles': titles,
-			'prop': 'info',
-			'indexpageids': 'True',
-			'format': 'json'
-		},
-        function(data){
-			grabFilmsFromPageID(data.query.pageids[0]);
-        });
 
-	function grabFilmsFromPageID(pageid) {
-		$.getJSON("http://en.wikipedia.org/w/api.php?",
-			{
-				'action': 'parse',
-				'prop': 'wikitext',
-				'pageid': pageid,
-				'format': 'json'
-			},
-			function(data){
-				var wikiText = data.parse.wikitext["*"];
-				var patt=/grossing\sfilms[\s\S]*?==[\s\S^]*?==/g;
-				var topGrossing = wikiText.match(patt)[0];
-				
-				patt=/\|[\s]*\d[\s\S]*?\|-/g;
-				var movies = topGrossing.match(patt);
-				
-				for(var i = 0; i < 5; i++) {
-					patt=/\[\[.*?\]\]/g;
-					var movieTitle = movies[i].match(patt)[0];
-					
-					var moviePage;
-					var stopChar = movieTitle.indexOf('|');
-					if (stopChar > -1) {
-						moviePage = movieTitle.substring(2,stopChar);
-					} else {
-						moviePage = movieTitle.substring(2,movieTitle.length-2);
-					}
-					
-					$("#film" + i).text(moviePage);
-					
-					createDropForMoviePage(moviePage);
-				}
-			});
-		
-		function createDropForMoviePage(moviePage) {
-			$.getJSON("http://api.embed.ly/1/oembed?",
+			// Only update the page if the track changed
+			if (e.data.curtrack == true) 
+			{							
+				console.log("albumName=" + player.track.album.name + " lastAlbum=" + lastAlbum);
+
+				//TODO:
+				//assume there's something like (e.data.album.name == true) instead of manually tracking
+				if(player.track.album.name != lastAlbum)
 				{
-					'url': 'http://en.wikipedia.org/wiki/' + moviePage,
-					'format': 'json'
-				},
-				function(data){
-					createDrop(moviePage, data.url, data.thumbnail_url);
-				});
+					stopNow = false;
+					console.log("updating");
+					
+					lastAlbum = player.track.album.name;
+					
+					updateTrackDetails(player.track.data);
+					searchWikiForAlbum(player.track.data);
+
+//					getLastFmReleaseDate(player.track.data);
+//					searchEchoNestForArtistInfo(player.track.data);
+				}
+				else
+				{
+					console.log("SAME ALBUM, not updating");
+				}
+			}			
 		}
-	}
+	);
 }
 
-function queryNewsForArtist(artist) {
-	$.getJSON("http://developer.echonest.com/api/v4/artist/search?",
-		{
-			'api_key': ECHO_NEST_KEY,
-			'format': 'json',
-			'results': 1,
-			'name': artist
-		},
-		function(data){
-			getNewsForArtistID(data.response.artists[0].id);
-		});
+function updateTrackDetails(playerTrackData) 
+{
+	Song.innerText = playerTrackData.name.decodeForText();
+	Album.innerText = playerTrackData.album.name.decodeForText();
+	Artist.innerText = playerTrackData.album.artist.name.decodeForText();
 	
-	function getNewsForArtistID(artistID) {
-		$.getJSON("http://developer.echonest.com/api/v4/artist/news?",
-			{
-				'api_key': ECHO_NEST_KEY,
-				'id': artistID,
-				'format': 'json',
-				'results': 5,
-				'start': 0
-			},
-			function(data){
-				var news = data.response.news;
-			
-				for (var i = 0; i < 5; i++) {
-					$("#news" + i).text(news[i].name);
-				}
-			});
-	}
+	URI.innerText = playerTrackData.uri;
+}
+
+function searchWikiForAlbum(playerTrackData) 
+{	
+	Released.innerText = "";
+	
+	URI.innerText="";
+	Song1.innerText="";
+	Song2.innerText="";
+	Song3.innerText="";
+	Song4.innerText="";
+
+	//var album = playerTrackData.album.name;
+	requestPageIds(playerTrackData, false);			
 }
 
 function requestPageIds(playerTrackData, plusAlbum)
@@ -277,18 +223,17 @@ function tryToPopulateReleaseDate(wikiText)
 
     		//TODO: remove extra stuff and normalize date info from section text
     		normalizedDate = normalizeDate(section);
-    		foundDate = true;   		
+    		foundDate = true;    		
     	}
     }
-    //console.log("released.innertext=" + Released.innerText);
-    if(foundDate === false && stopNow === false)
+    console.log("released.innertext=" + Released.innerText);
+    if(Released.innerText === "" && stopNow === false)
     {
     	stopNow = true;
     	requestPageIds(player.track.data, true);			
    	}
     else if (normalizedDate !== undefined)
     {
-		queryWikipediaForFilmsInYear(normalizedDate);
     	getTopFourPage(normalizedDate);
     }
     
@@ -452,6 +397,11 @@ function getTopFourList(request, date)
             	}
             }
             
+            	Song1.innerText = songs[0].artist + ", " + songs[0].title;	
+            	Song2.innerText = songs[1].artist + ", " + songs[1].title;
+            	Song3.innerText = songs[2].artist + ", " + songs[2].title;
+               	Song4.innerText = songs[3].artist + ", " + songs[3].title;
+            
             for(var z = 0; z < songs.length; z++)
             {
             	getURI(songs[z]);
@@ -474,8 +424,7 @@ function getURI(song)
     
     search.observe(models.EVENT.CHANGE, function() {
     	for(var i in search.tracks) 
-    	{
-			createDrop(song.title + " | " + song.artist, search.tracks[i].uri, search.tracks[i].image);
+    	{    		
     		$('#Song5 a').attr('href', search.tracks[i].image);
     		console.log("trackname:"+search.tracks[i].name.decodeForText()+ "uri:"+search.tracks[i].uri);
     		console.log("imageuri:"+search.tracks[i].image);
@@ -504,3 +453,167 @@ function buildSong(songString)
 	}
 	return songObj;
 }
+
+
+
+
+
+function requestTopTen(normalizedDate)
+{
+	//http://api.billboard.com/apisvc/chart/v1/list?artist=Jackson&sdate=2003-10-10&edate=2008-08-08&api_key=txkttmnu46cb7q62dh9fdbp7
+	//	http://api.billboard.com/apisvc/chart/v1/list?song=One&api_key=txkttmnu46cb7q62dh9fdbp7
+	
+	var requestStr="http://api.billboard.com/apisvc/chart/v1/list?artist=Jackson&sdate=2003-10-10&edate=2008-08-08&api_key=" + billboardApiKey;
+	
+	var req = new XMLHttpRequest();
+	req.open("GET", requestStr, true);
+    req.onreadystatechange = function() 
+    {
+    	parseTopTenResults(req);
+    };    
+    req.send();
+
+}
+
+
+function searchEchoNestForArtistInfo(playerTrackData)
+{
+//	http://developer.echonest.com/api/v4/artist/biographies?api_key=N6E4NIOVYMTHNDM8J&id=ARH6W4X1187B99274F&format=json&results=1&start=0&license=cc-by-sa
+//	http://developer.echonest.com/api/v4/artist/biographies?api_key=N6E4NIOVYMTHNDM8J&name=&format=json&results=1&start=0
+	var artist = playerTrackData.album.artist.name.replace(" ", "+");
+	
+//		var requestStr = "http://developer.echonest.com/api/v4/artist/biographies?api_key="+echonestApiKey+"&id=ARH6W4X1187B99274F&format=json&results=1&start=0&license=cc-by-sa"
+	var requestStr = "http://developer.echonest.com/api/v4/artist/biographies?api_key="+echonestApiKey+"&name="+artist+"&format=json&results=1&start=0";
+	console.log("requesting echoNest data:" + requestStr);
+		
+	var req = new XMLHttpRequest();
+	req.open("GET", requestStr, true);
+	req.onreadystatechange = function() 
+	{
+		parseEchoNest(req);
+	};    
+	req.send();
+}
+
+function parseEchoNest(request)
+{
+    if (request.readyState == 4) 
+    {
+        if (request.status == 200) 
+        {
+        	console.log("echonest results" + request.responseText); 	
+        }
+        else
+        {
+        	console.log("echonest failure text:" + request.statusText);
+        }
+    }
+
+}
+
+function getLastFmReleaseDate(playerTrackData)
+{
+	//var artist = playerTrackData.album.artist.name.replace(" ", "+");
+	var album = playerTrackData.album.name.decodeForText();
+	var artist = playerTrackData.album.artist.name.decodeForText();
+	
+//		var requestStr = "http://developer.echonest.com/api/v4/artist/biographies?api_key="+echonestApiKey+"&id=ARH6W4X1187B99274F&format=json&results=1&start=0&license=cc-by-sa"
+	var requestStr = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&format=json&api_key="+lastFmKey+"&artist="+artist+"&album="+album;
+
+	console.log("requesting lastfm data:" + requestStr);
+		
+	var req = new XMLHttpRequest();
+	req.open("GET", requestStr, true);
+	req.onreadystatechange = function() 
+	{
+		parseLastFmReleaseDate(req);
+	};    
+	req.send();
+}
+
+function parseLastFmReleaseDate(request)
+{
+	console.log(request.responseText);
+}
+
+
+function parseTopTenResults(request)
+{
+//	console.log("Status=" + request.status);
+    if (request.readyState == 4) 
+    {
+        if (request.status == 200) 
+        {
+        	console.log(request.responseText);
+        }
+    }
+}
+
+
+
+
+
+//function getReleaseDateWithRedirects(pageid)
+//{
+//	console.log("trying now with redirects");
+//
+//	var req = new XMLHttpRequest();
+//	req.open("GET", "http://en.wikipedia.org/w/api.php?action=parse&format=xml&pageid="+pageid+"&redirects&prop=wikitext", true);
+//	req.setRequestHeader("User-Agent", "MyAlbumReleaseDateSearcher/0.9");
+//	req.onreadystatechange = function() 
+//	{
+//		console.log("Status=" + req.status);
+//	    if (req.readyState == 4) 
+//	    {
+//	        if (req.status == 200) 
+//	        {
+//	        	if(!tryToPopulateReleaseDate(req.responseText))
+//	        	{
+//	        		console.log("didn't find even w redirects")
+//		        	if(!stopNow)
+//		        	{
+//		        		stopNow = true;
+//		        		console.log("last ditch adding (album) and starting over");
+//		        		//One last try
+//		        		var playerTrackInfo = player.track;
+//		        		if (playerTrackInfo == null) 
+//		        		{
+//		        			header.innerText = "Nothing playing!";
+//		        		} 
+//		        		else 
+//		        		{
+//		        			var album = playerTrackInfo.data.album.name;
+//			        		album += " (album)";
+//			        		album.replace("&apos;", "'");
+//		        			console.log("Sending album="+album);	        			
+//		        			requestPageIds(album);		
+//		        		}
+//		        	}
+//		        	else
+//		        	{
+//		        		console.log("stopping bc we've already tried appending album");
+//		        	}
+//	        	}
+//	        }
+//	    }
+//	};	
+//	req.send();
+//}
+
+
+//[[Category:1991 albums]]
+//[[Category:Albums produced by Brian Eno]]
+//[[Category:Albums produced by Daniel Lanois]]
+//[[Category:Albums produced by Steve Lillywhite]]
+//[[Category:English-language albums]]
+//[[Category:Island Records albums]]
+//[[Category:U2 albums]]
+
+//{"query":
+//{"pages":
+//	{"209063":
+//		{"pageid":209063,"ns":0,"title":"Achtung Baby","touched":"2012-02-20T12:32:25Z","lastrevid":475750055,"counter":"","length":105009
+//		}
+//	}
+//}
+//}
