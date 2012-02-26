@@ -51,7 +51,8 @@ function updatePageWithTrackDetails() {
 }
 
 function createDrop(title, url, imgurl, service) {
-	var randomnumber=Math.floor(Math.random()*4)
+	var randomnumber=Math.floor(Math.random()*4);
+	
 	var pipeid = 'pipe' + randomnumber;
 	
 	var html = "<div class='drop'>";
@@ -352,7 +353,7 @@ function normalizeDate(sectionText)
 	
 	console.log("trying to parse:" + normalStr);
 	var date = Date.parse(normalStr);
-	console.log("date obj:" + date);
+	//console.log("date obj:" + date);
 	return date;
 }
 
