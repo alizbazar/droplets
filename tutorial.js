@@ -42,7 +42,7 @@ function updatePageWithTrackDetails() {
     } else {
         var track = playerTrackInfo.data;
 		
-		$("#current_drop").text("Drop: " + track.name + " by crashDummy");
+		$("#current_track").text(track.name.decodeForText());
 		
 		requestPageIds(player.track.data, false);
 		queryNewsForArtist(track.album.artist.name);
