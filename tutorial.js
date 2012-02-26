@@ -5,23 +5,31 @@ var player = models.player;
 var ECHO_NEST_KEY =  'EOGLVCKR6RT6NR3DK';
 var EMBEDLY_KEY = '9ab6f030604011e1ae744040d3dc5c07';
 
+var totalDrops = 0;
+
 var stopNow = false;
 
 exports.init = init;
 
 function init() {
 
-    updatePageWithTrackDetails();
-
     player.observe(models.EVENT.CHANGE, function (e) {
 
         // Only update the page if the track changed
         if (e.data.curtrack == true) {
+			$("#startPage").hide();
+			$("#right").show();
             updatePageWithTrackDetails();
         }
     });
     $('#sink').on('click', 'a.addDrop', function(e) {
         $(this).closest('.drop').toggleClass('selected');
+		if ($(this).closest('.drop').hasClass('selected')) {
+			totalDrops++;
+		} else {
+			totalDrops--;
+		}
+		$("#totalDrops").text(totalDrops);
         e.preventDefault();
     });
 }
@@ -42,7 +50,7 @@ function updatePageWithTrackDetails() {
     } else {
         var track = playerTrackInfo.data;
 		
-		$("#current_drop").text("Drop: " + track.name + " by crashDummy");
+		$("#current_track").text(track.name.decodeForText());
 		
 		requestPageIds(player.track.data, false);
 		queryNewsForArtist(track.album.artist.name);
@@ -484,7 +492,7 @@ function getURI(song)
     search.observe(models.EVENT.CHANGE, function() {
     	for(var i in search.tracks) 
     	{
-			createDrop(song.title + " | " + song.artist, search.tracks[i].uri, search.tracks[i].image);
+			createDrop(song.title + " by " + song.artist, search.tracks[i].uri, search.tracks[i].image);
     		$('#Song5 a').attr('href', search.tracks[i].image);
     		console.log("trackname:"+search.tracks[i].name.decodeForText()+ "uri:"+search.tracks[i].uri);
     		console.log("imageuri:"+search.tracks[i].image);
