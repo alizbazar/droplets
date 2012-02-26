@@ -20,6 +20,10 @@ function init() {
             updatePageWithTrackDetails();
         }
     });
+    $('#sink').on('click', 'a.addDrop', function(e) {
+        $(this).closest('.drop').toggleClass('selected');
+        e.preventDefault();
+    });
 }
 
 function updatePageWithTrackDetails() {

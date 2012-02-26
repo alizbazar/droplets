@@ -11,13 +11,15 @@
 	],
 	"RequiredPermissions": [
 		"https://www.google.com",
-		"https://ajax.googleapis.com",
+		"https://*.googleapis.com",
+		"http://*.googleapis.com",
 		"http://en.wikipedia.org",
 		"http://upload.wikimedia.org",
 		"http://developer.echonest.com",
 		"http://api.embed.ly",
 		"http://tunecaster.com",
 		"http://sandbox.thinglink.com:8080",
-		"http://ecx.images-amazon.com"
+		"http://ecx.images-amazon.com",
+		"http://*.googleusercontent.com"
 	]
 }
