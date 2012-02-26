@@ -50,20 +50,35 @@ function updatePageWithTrackDetails() {
     }
 }
 
-function createDrop(title, url, imgurl) {
+function createDrop(title, url, imgurl, service) {
 	var randomnumber=Math.floor(Math.random()*4)
 	var pipeid = 'pipe' + randomnumber;
 	
-	var html = "<div class='drop'>"
-	            + "<img src='" + imgurl + "' />"
-                + "<p>" + title + "</p>"
-	            + '<a href="#" class="addDrop"><span class="add_drop_icon sprite"></span></a>'
-	            + "</div>";
+	var html = "<div class='drop'>";
 	
-	$("#" + pipeid).append(html);
-	$(".drop:last").click( function() {
-		//something here
-	});
+	if (service) {
+		html += "<img class='serviceurl' src='" + service + ".png' />";
+	}
+	
+	if (imgurl) {
+		html += "<img class='imgurl' src='" + imgurl + "' />";
+	}
+	
+    html += "<p>" + title + "</p>"
+	     + '<a href="#" class="addDrop"><span class="add_drop_icon sprite"></span></a>'
+	     + "</div>";
+	
+	if (service != 'echonest') {
+		$("#" + pipeid).prepend(html);
+		$(".drop:first").click( function() {
+			//something here
+		});
+	} else {
+		$("#" + pipeid).append(html);
+		$(".drop:last").click( function() {
+			//something here
+		});
+	}
 }
 
 function runProductSearch(track) {
@@ -73,7 +88,7 @@ function runProductSearch(track) {
 				link = data[i].url,
 				icon = data[i].icon.replace("SL75", "SL300");
 				
-			createDrop(title, link, icon);
+			createDrop(title, link, icon, 'amazon');
 		}
 	});
 }
@@ -167,7 +182,7 @@ function queryNewsForArtist(artist) {
 				var news = data.response.news;
 			
 				for (var i = 0; i < 5; i++) {
-					createDrop(news[i].name, news[i].url, 'echonest_logo.png');
+					createDrop(news[i].name, news[i].url, null, 'echonest');
 				}
 			});
 	}

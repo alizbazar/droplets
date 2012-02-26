@@ -19,15 +19,16 @@ html {
 }
 
 #splash {
-	width: 198px;
 	position: fixed;
 	left: 0px;
-	top: 500px;
+	bottom: 0px;
+	z-index: -1;
 }
 
 #top_fade {
 	position: fixed;
 	top: 60px;
+	width: 792px;
 }
 
 #right {
@@ -36,8 +37,9 @@ html {
 }
 
 #header {
-	width: 822px;
+	width: 772px;
 	padding-top: 30px;
+	padding-left: 10px;
 	padding-bottom: 5px;
 	margin-bottom: 10px;
 	border-bottom: 3px solid #bbcfe5;
@@ -57,11 +59,17 @@ html {
 	display: inline;
 }
 
+#top_drop {
+	width: 18px;
+	position: relative;
+	float: right;
+}
+
 #sink {
 	width: 822px;
 	margin-left: auto;
 	margin-right: auto;
-	margin-top: 50px;
+	margin-top: 70px;
 }
 
 .pipe {
