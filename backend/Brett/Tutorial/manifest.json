@@ -16,6 +16,8 @@
 		"http://upload.wikimedia.org",
 		"http://developer.echonest.com",
 		"http://api.embed.ly",
-		"http://tunecaster.com"
+		"http://tunecaster.com",
+		"http://sandbox.thinglink.com:8080",
+		"http://ecx.images-amazon.com"
 	]
 }

@@ -3,6 +3,7 @@ var models = sp.require('sp://import/scripts/api/models');
 var player = models.player;
 
 var ECHO_NEST_KEY =  'EOGLVCKR6RT6NR3DK';
+var EMBEDLY_KEY = '9ab6f030604011e1ae744040d3dc5c07';
 
 var stopNow = false;
 
@@ -34,24 +35,37 @@ function updatePageWithTrackDetails() {
         var track = playerTrackInfo.data;
 		
 		queryNewsForArtist(track.album.artist.name);
+		runProductSearch(track);
 		requestPageIds(player.track.data, false);
     }
 }
 
 function createDrop(title, url, imgurl) {
+	var randomnumber=Math.floor(Math.random()*4)
+	var pipeid = 'pipe' + randomnumber;
+	
 	var html = "<div class='drop'>"
 	html = html + "<img src='" + imgurl + "' />"
 	html = html + "<p>" + title + "</p>"
 	html = html + "</div>"
 	
-	$("#drops").append(html);
+	$("#" + pipeid).append(html);
 	$(".drop:last").click( function() {
 		//something here
 	});
 }
 
-function createDropForUri(uri) {
-	$("#temp").text(uri);
+function runProductSearch(track) {
+	$.getJSON('http://sandbox.thinglink.com:8080/thinglink/action/amazonProductSearch', {query: track.artists[0].name}, function(data) {
+		for(var i in data) {
+			console.log(data);
+			var title = data[i].text,
+				link = data[i].url,
+				icon = data[i].icon.replace("SL75", "SL300");
+				
+			createDrop(title, link, icon);
+		}
+	});
 }
 
 function queryWikipediaForFilmsInYear(normalizedDate) {
@@ -108,7 +122,8 @@ function queryWikipediaForFilmsInYear(normalizedDate) {
 			$.getJSON("http://api.embed.ly/1/oembed?",
 				{
 					'url': 'http://en.wikipedia.org/wiki/' + moviePage,
-					'format': 'json'
+					'format': 'json',
+					'key': EMBEDLY_KEY
 				},
 				function(data){
 					createDrop(moviePage, data.url, data.thumbnail_url);
@@ -142,7 +157,7 @@ function queryNewsForArtist(artist) {
 				var news = data.response.news;
 			
 				for (var i = 0; i < 5; i++) {
-					$("#news" + i).text(news[i].name);
+					createDrop(news[i].name, news[i].url, 'echonest.jpg');
 				}
 			});
 	}
