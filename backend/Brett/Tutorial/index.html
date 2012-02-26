@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>My First App</title>
+	<link rel="stylesheet" href="sp://import/css/adam.css">
+	<link rel="stylesheet" href="sp://import/css/shared.css">
+	<link rel="stylesheet" href="sp://import/css/api.css">
+	<link rel="stylesheet" href="tutorial.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
+	<script src="https://www.google.com/jsapi" type="text/javascript"></script>
+</head>
+<body onload="sp = getSpotifyApi(1); tutorial = sp.require('tutorial'); tutorial.init();">
+	<div id="sandbox">
+		<div id="left">
+			<img id="albumCover" class="sp-image" src=""/>
+		</div>
+		<div id="right">
+			<p id="track"></p>
+			<p id="album"></p>
+			<p id="artist"></p>
+		</div>
+	</div>
+	<div id="films">
+		<p id="film0"></p>
+		<p id="film1"></p>
+		<p id="film2"></p>
+		<p id="film3"></p>
+		<p id="film4"></p>
+	</div>
+	<div id="temp"></div>
+	<div id="news">
+		<p id="news0"></p>
+		<p id="news1"></p>
+		<p id="news2"></p>
+		<p id="news3"></p>
+		<p id="news4"></p>
+	</div>
+	<div id="drops">
+	</div>
+</body>
+</html>
