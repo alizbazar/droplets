@@ -18,26 +18,66 @@ html {
 	left: 0px;
 }
 
+#shareButton {
+	background-image:url('share_rollover_off.png');
+	position: absolute;
+	bottom: 160px;
+	left: 0px;
+	width: 120px;
+	height: 80px;
+}
+
+#shareButton:hover {
+	background-image:url('share_rollover_on.png');
+}
+
 #splash {
 	position: fixed;
 	left: 0px;
 	bottom: 0px;
-	z-index: -1;
+	z-index: -2;
 }
 
 #top_fade {
 	position: fixed;
 	top: 60px;
-	width: 792px;
+	width: 795px;
+}
+
+#spotifyimg {
+	width: 150px;
+	margin-right: auto;
+	margin-left: auto;
+	padding-left: 32px;
+	
+}
+
+#startPage {
+	width:822px;
+	float: left;
+}
+
+#start_text {
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	padding-top: 80px;
+}
+
+#headphones {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
 }
 
 #right {
 	width:822px;
 	float: left;
+	display: none;
 }
 
 #header {
-	width: 772px;
+	width: 775px;
 	padding-top: 30px;
 	padding-left: 10px;
 	padding-bottom: 5px;
@@ -60,10 +100,19 @@ html {
 	display: inline;
 }
 
+#dropCountDiv {
+	float: right;
+	margin-right: 10px;
+}
+
 #top_drop {
 	width: 18px;
-	position: relative;
 	float: right;
+}
+
+#totalDrops {
+	float: left;
+	margin-right: 2px;
 }
 
 #sink {
@@ -82,12 +131,16 @@ html {
 	font-size: 20px;
 	width: 214px;
 	padding: 7px;
-	border: 3px solid #bbcfe5;
+	border: 3px solid #fff;
 	margin: 20px 20px 10px 20px;
+	box-shadow: 2px 2px 2px lightgrey;
+	-webkit-transition:border 1s, background-color 1s, box-shadow 1s;
 }
 
 .drop.selected {
     background-color: #eff5fd;
+	border: 3px solid #bbcfe5;
+	box-shadow: 0px 0px 0px grey;
 }
 
 #pipe1 .drop {
@@ -102,9 +155,9 @@ html {
 .drop p {
 	margin-top: 0;
 	font-family: 'Exo', Helvetica, sans-serif;
-	font-weight: 300;
+	font-weight: 400;
 	font-size: 16px;
-	line-height: 1.4em;
+	line-height: 1.6em;
 }
 
 a.addDrop {
