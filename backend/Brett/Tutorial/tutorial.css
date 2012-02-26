@@ -12,10 +12,15 @@
 }
 
 #header {
-	height: 100px;
+	height: 40px;
 	width: 822px;
-	background-color: red;
+	margin-top: 40px;
 	border-bottom: 3px solid white;
+}
+
+#header h1 {
+	font-size: 26px;
+	color: white;
 }
 
 #sink {
