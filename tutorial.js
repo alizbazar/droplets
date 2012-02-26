@@ -7,6 +7,8 @@ var EMBEDLY_KEY = '9ab6f030604011e1ae744040d3dc5c07';
 
 var totalDrops = 0;
 
+var dropsMade = 0;
+
 var stopNow = false;
 
 exports.init = init;
@@ -59,8 +61,9 @@ function updatePageWithTrackDetails() {
 }
 
 function createDrop(title, url, imgurl, service) {
-	var randomnumber=Math.floor(Math.random()*4)
-	var pipeid = 'pipe' + randomnumber;
+	var idnum = (dropsMade % 3) + 1;
+	dropsMade++;
+	var pipeid = 'pipe' + idnum;
 	
 	var html = "<div class='drop'>";
 	
