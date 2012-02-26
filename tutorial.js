@@ -21,7 +21,7 @@ function init() {
         }
     });
     $('#sink').on('click', 'a.addDrop', function(e) {
-        $(this).toggleClass('selected');
+        $(this).closest('.drop').toggleClass('selected');
         e.preventDefault();
     });
 }

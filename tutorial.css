@@ -52,6 +52,7 @@ html {
 }
 
 #header h2 {
+    margin-left: 6px;
 	font-size: 16px;
 	color: #6a839e;
 	display: inline;
@@ -77,6 +78,10 @@ html {
 	margin: 20px 20px 10px 20px;
 }
 
+.drop.selected {
+    background-color: #eff5fd;
+}
+
 #pipe1 .drop {
     margin-left: 0;
 }
@@ -88,14 +93,16 @@ html {
 
 .drop p {
 	margin-top: 0;
-	font-style: Helvetica;
+	font-family: 'Exo', 'Doppio One', Helvetica, sans-serif;
+	font-weight: 300;
 	font-size: 16px;
+	line-height: 1.4em;
 }
 
 a.addDrop {
     display: block;
-    height: 30px;
-    margin-top: 10px;
+    height: 26px;
+    margin-top: 8px;
 }
 
 #left {
@@ -135,8 +142,8 @@ a.addDrop:hover .add_drop_icon{ background-position: 0 -77px; width: 27px; heigh
 .comment_icon{ background-position: 0 -154px; width: 27px; height: 21px; } 
 .drop_icon{ background-position: 0 -225px; width: 21px; height: 25px; } 
 .heart_icon{ background-position: 0 -300px; width: 25px; height: 22px; } 
-a.addDrop.selected .add_drop_icon { background-position: 0 -372px; width: 26px; height: 27px; } 
-a.addDrop.selected:hover .add_drop_icon { background-position: 0 -449px; width: 26px; height: 27px; } 
+.drop.selected a.addDrop .add_drop_icon { background-position: 0 -372px; width: 26px; height: 27px; } 
+.drop.selected a.addDrop:hover .add_drop_icon { background-position: 0 -449px; width: 26px; height: 27px; } 
 .share_rollover_off{ background-position: 0 -526px; width: 120px; height: 80px; } 
 .share_rollover_on{ background-position: 0 -656px; width: 120px; height: 80px; } 
 .spotify_rollover_off{ background-position: 0 -786px; width: 80px; height: 81px; } 
