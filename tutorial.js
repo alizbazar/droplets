@@ -24,6 +24,10 @@ function init() {
 
 function updatePageWithTrackDetails() {
 
+	$("#pipe1").empty();
+	$("#pipe2").empty();
+	$("#pipe3").empty();
+
     var header = document.getElementById("header");
 
     // This will be null if nothing is playing.
