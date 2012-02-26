@@ -1,9 +1,14 @@
-#container {
+html {
+	background-color: #eef1f4;
 }
 
 #left {
 	width: 203px;
 	float: left;
+}
+
+#topLeft {
+	width: 203px;
 }
 
 #right {
@@ -12,15 +17,16 @@
 }
 
 #header {
-	height: 40px;
+	height: 30px;
 	width: 822px;
 	margin-top: 40px;
-	border-bottom: 3px solid white;
+	margin-bottom: 30px;
+	border-bottom: 3px solid #bbcfe5;
 }
 
 #header h1 {
-	font-size: 26px;
-	color: white;
+	font-size: 24px;
+	color: #455566;
 }
 
 #sink {
