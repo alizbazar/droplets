@@ -21,7 +21,7 @@ function init() {
         }
     });
     $('#sink').on('click', 'a.addDrop', function(e) {
-        $(this).toggleClass('selected');
+        $(this).closest('.drop').toggleClass('selected');
         e.preventDefault();
     });
 }
@@ -42,7 +42,7 @@ function updatePageWithTrackDetails() {
     } else {
         var track = playerTrackInfo.data;
 		
-		$("#current_track").text(track.name.decodeForText());
+		$("#current_drop").text("Drop: " + track.name + " by crashDummy");
 		
 		requestPageIds(player.track.data, false);
 		queryNewsForArtist(track.album.artist.name);
@@ -84,6 +84,7 @@ function createDrop(title, url, imgurl, service) {
 function runProductSearch(track) {
 	$.getJSON('http://sandbox.thinglink.com:8080/thinglink/action/amazonProductSearch', {query: track.artists[0].name}, function(data) {
 		for(var i in data) {
+			console.log(data);
 			var title = data[i].text,
 				link = data[i].url,
 				icon = data[i].icon.replace("SL75", "SL300");
@@ -408,7 +409,7 @@ function getTopFourList(request, date)
             var tmpString;
             
             //console.log("split into line count=" + numLines);
-            
+            var songIdx = -1;
             var splitStringOffset = 2
             var maxSongs = 4;
             
@@ -421,52 +422,23 @@ function getTopFourList(request, date)
             		try
             		{
 	            		var splitByComma = section.split(",");
-	            		
-	            		thisSong = buildSong(splitByComma[2]);
-	            		//if(thisSong !== undefined)
-	            		if(typeof thisSong !== 'undefined')
-	            		{
-	            			if(songs.indexOf(thisSong) != -1)
-	            			{
-	            				songs.push(thisSong);
-	            			}
-	            		}
-	            		if(songs.length >= maxSongs)
-	            		{
-	            			break;
-	            		}
 
-	            		thisSong = buildSong(splitByComma[3]);
-	            		if(typeof thisSong !== 'undefined')
+	            		for(var j=0; j < maxSongs-1; j++)
 	            		{
-	            			if(songs.indexOf(thisSong) != -1)
-	            			{
-	            				songs.push(thisSong);
-	            			}
+		            		thisSong = buildSong(splitByComma[splitStringOffset]);
+		            		if(typeof thisSong !== 'undefined')
+		            		{
+		            			songIdx++;
+		            			songs[songIdx] = thisSong;
+		            		}
+		            		if(songs.length >= maxSongs)
+		            		{
+		            			break;
+		            		}
+		            		splitStringOffset++;
 	            		}
-	           			songs.push(thisSong);
-	            		
-	            		if(songs.length >= maxSongs)
-	            		{
-	            			break;
-	            		}
-	            		
-	            		thisSong = buildSong(splitByComma[4]);
-	            		if(typeof thisSong !== 'undefined')
-	            		{
-	            			if(songs.indexOf(thisSong) != -1)
-	            			{
-	            				songs.push(thisSong);
-	            			}
-	            		}
-	            		songs.push(thisSong);
-	            		
-	            		if(songs.length >= maxSongs)
-	            		{
-	            			break;
-	            		}
-	
-	            		var lastSong = splitByComma[5].split(" href");
+	            			
+	            		var lastSong = splitByComma[splitStringOffset].split(" href");
 	           			
 	            		var spacePos = lastSong[0].lastIndexOf(" ");
 	            		tmpString = lastSong[0].substring(0,spacePos);
@@ -474,12 +446,9 @@ function getTopFourList(request, date)
 	            		thisSong = buildSong(tmpString);
 	            		if(typeof thisSong !== 'undefined')
 	            		{
-	            			if(songs.indexOf(thisSong) != -1)
-	            			{
-	            				songs.push(thisSong);
-	            			}
+	            			songIdx++;
+	            			songs[songIdx] = thisSong;
 	            		}
-	            		songs.push(thisSong);
 	            		if(songs.length >= maxSongs)
 	            		{
 	            			break;
@@ -487,12 +456,12 @@ function getTopFourList(request, date)
             		}
             		catch(error)
             		{
-            			
+            			console.log("error adding songs:" + error);
             		}
             	}
             }
             
-            for(var z = 0; z < songs.length; z++)
+            for(var z = 0; z <= songIdx; z++)
             {
             	getURI(songs[z]);
             }            
