@@ -68,11 +68,19 @@ function createDrop(title, url, imgurl, service) {
 	var html = "<div class='drop'>";
 	
 	if (service) {
-		html += "<img class='serviceurl' src='" + service + ".png' />";
+		if (service == 'spotify') {
+			html += "<a href='" + url + "'>"
+		}
+		
+		html += "<img class='serviceurl' id='" + service + "img' src='" + service + ".png' />";
 	}
 	
 	if (imgurl) {
 		html += "<img class='imgurl' src='" + imgurl + "' />";
+	}
+	
+	if (service == "spotify") {
+		html += "</a>"
 	}
 	
     html += "<p>" + title + "</p>"
@@ -495,7 +503,7 @@ function getURI(song)
     search.observe(models.EVENT.CHANGE, function() {
     	for(var i in search.tracks) 
     	{
-			createDrop(song.title + " by " + song.artist, search.tracks[i].uri, search.tracks[i].image);
+			createDrop(song.title + " by " + song.artist, search.tracks[i].uri, search.tracks[i].image, 'spotify');
     		$('#Song5 a').attr('href', search.tracks[i].image);
     		console.log("trackname:"+search.tracks[i].name.decodeForText()+ "uri:"+search.tracks[i].uri);
     		console.log("imageuri:"+search.tracks[i].image);
