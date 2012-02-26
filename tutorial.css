@@ -1,0 +1,87 @@
+#container {
+}
+
+#left {
+	width: 203px;
+	float: left;
+}
+
+#right {
+	width:822px;
+	float: left;
+}
+
+#header {
+	height: 40px;
+	width: 822px;
+	margin-top: 40px;
+	border-bottom: 3px solid white;
+}
+
+#header h1 {
+	font-size: 26px;
+	color: white;
+}
+
+#sink {
+	width: 822px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.pipe {
+	float: left;
+}
+
+.drop {
+	background-color: grey;
+	color: black;
+	font-size: 20px;
+	width: 214px;
+	padding: 10px;
+	margin-top: 10px;
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+.drop img {
+	width: 214px;
+}
+
+.drop p {
+	margin-top: 10px;
+}
+
+#left {
+	width: 200px;
+	height: 200px;
+	float: left;
+}
+
+#right {
+	width: 300px;
+	height: 200px;
+	float: left;
+}
+
+#right p {
+	padding: 20px;
+	font-size: 20px;
+}
+
+#albumCover {
+	width: 200px;
+	height: 200px;
+}
+
+#films {
+	width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#news {
+	width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+}
