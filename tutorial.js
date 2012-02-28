@@ -10,16 +10,19 @@ var totalDrops = 0;
 var dropsMade = 0;
 
 var stopNow = false;
-
+var initialized = false;
 exports.init = init;
 
 function init() {
+	$("#startPage").hide();
+	$("#right").show();
+	updatePageWithTrackDetails();
 
     player.observe(models.EVENT.CHANGE, function (e) {
 
         // Only update the page if the track changed
         if (e.data.curtrack == true) {
-			$("#startPage").hide();
+        	$("#startPage").hide();
 			$("#right").show();
             updatePageWithTrackDetails();
         }
@@ -56,7 +59,7 @@ function updatePageWithTrackDetails() {
 		
 		requestPageIds(player.track.data, false);
 		queryNewsForArtist(track.album.artist.name);
-		runProductSearch(track);
+		//runProductSearch(track);
     }
 }
 
@@ -102,20 +105,21 @@ function createDrop(title, url, imgurl, service) {
 }
 
 function runProductSearch(track) {
-	$.getJSON('http://sandbox.thinglink.com:8080/thinglink/action/amazonProductSearch', {query: track.artists[0].name}, function(data) {
-		for(var i in data) {
-			console.log(data);
-			var title = data[i].text,
-				link = data[i].url,
-				icon = data[i].icon.replace("SL75", "SL300");
-				
-			createDrop(title, link, icon, 'amazon');
-		}
-	});
+	
+//	$.getJSON('http://sandbox.thinglink.com:8080/thinglink/action/amazonProductSearch', {query: track.artists[0].name}, function(data) {
+//		for(var i in data) {
+//			console.log(data);
+//			var title = data[i].text,
+//				link = data[i].url,
+//				icon = data[i].icon.replace("SL75", "SL300");
+//				
+//			createDrop(title, link, icon, 'amazon');
+//		}
+//	});
 }
 
-function queryWikipediaForFilmsInYear(normalizedDate) {
-	var year = normalizedDate.toString('yyyy');
+function queryWikipediaForFilmsInYear(releaseDate) {
+	var year = releaseDate.toString('yyyy');
 
 	var titles = year + ' in film';
 	$.getJSON("http://en.wikipedia.org/w/api.php?",
@@ -209,72 +213,55 @@ function queryNewsForArtist(artist) {
 	}
 }
 
-function requestPageIds(playerTrackData, plusAlbum)
+function requestPageIds(playerTrackData, addAlbumToTitle)
 {
-	var albumName=playerTrackData.album.name.decodeForText();
-	
-	//TODO: oh god no!
+	var albumName=playerTrackData.album.name.decodeForText();	
 	albumName = normalizeName(albumName);
 	
-	if(plusAlbum === true)
+	if(addAlbumToTitle === true)
 	{
 		albumName = albumName + " (album)";
 	}
-	console.log("requesting page title: " + albumName);
-
-	var requestString = "http://en.wikipedia.org/w/api.php?action=query&titles=" + albumName + "&prop=info&indexpageids&format=json";	
-	console.log("request: " + requestString);
 	
-	var req = new XMLHttpRequest();
-	req.open("GET", requestString, true);
-	req.setRequestHeader("User-Agent", "MyAlbumReleaseDateSearcher/0.9");
-    req.onreadystatechange = function() 
-    {
-    	getPageIdsCallback(req);
-    };
-    req.send();
+	$.getJSON("http://en.wikipedia.org/w/api.php?",
+			{
+				'action': 'query',
+				'titles': albumName,
+				'prop': 'info',
+				'indexpageids': '',
+				'format': 'json'
+			}, function getPageIds(jsonData) {
+				var pageIdArray = parseJsonForPageIds(jsonData);
+				console.log("got "+pageIdArray.length + " pageids");            	        	
+	    		for(var j=0; j < pageIdArray.length; j++)
+	    		{
+	    			if(pageIdArray[j] > 0)
+	    			{
+	        			console.log("trying to get release date from " + pageIdArray[j]);
+	        			getReleaseDate(pageIdArray[j], false);
+	    			}
+	    		}
+			});
 }
 
+//TODO: figure out the words that need normalizing without requesting for redirects, 
+//and add as a dictionary(?)
 function normalizeName(name)
 {
 	name = name.replace(" And", " and");
+	name = name.replace(" With", " with");
+	
 	return name;
-}
-
-function getPageIdsCallback(request)
-{
-    if (request.readyState == 4) 
-    {
-        if (request.status == 200) 
-        {
-        	console.log("page id result =" + request.responseText);
-        	var pageIdArray = parseJsonForPageIds(request.responseText);
-
-        	console.log("got "+pageIdArray.length + " pageids");            	
-        	
-    		for(var j=0; j < pageIdArray.length; j++)
-    		{
-    			if(pageIdArray[j] > 0)
-    			{
-        			console.log("trying to get release date from " + pageIdArray[j]);
-        			getReleaseDate(pageIdArray[j], false);
-    			}
-    		}
-        }
-    }
 }
 
 function parseJsonForPageIds(jsonText)
 {
-	//Get json pages, iterate first 3 looking for artist name inside
-	var resultDetails = eval('(' + jsonText + ')');
-
 	//Here we should return an array of max n pageids,
 	//and calling function should retrieve each page, looking for a reference to the artist playing,
 	//then use that pageid to continue
 	var maxResults = 3;
 	var myPageIds=new Array(maxResults);
-	var pageIds = resultDetails.query["pageids"];
+	var pageIds = jsonText.query["pageids"];
 	if(pageIds.length > 0)
 	{
 		for(var i=0; i < pageIds.length && i < maxResults; i++)
@@ -287,7 +274,6 @@ function parseJsonForPageIds(jsonText)
 
 function getReleaseDate(pageid, inclRedirects)
 {
-	//var requestStr = "http://en.wikipedia.org/w/api.php?action=parse&format=xml&pageid="+pageid;
 	var requestStr = "http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid="+pageid;
 	if(inclRedirects == true)
 	{
@@ -295,64 +281,53 @@ function getReleaseDate(pageid, inclRedirects)
 	}
 	requestStr += "&prop=wikitext";
 
-	console.log("request string:" + requestStr);
-	
-	var req = new XMLHttpRequest();
-	req.open("GET", requestStr, true);
-	req.setRequestHeader("User-Agent", "MyAlbumReleaseDateSearcher/0.9");
-	req.onreadystatechange = function() 
-	{
-		parseReleaseDateCallback(req);
-	};
-	req.send();
-}
+	$.getJSON("http://en.wikipedia.org/w/api.php?",
+		{
+			'action': 'parse',
+			'prop': 'wikitext',
+			'pageid': pageid,
+			'format': 'json'
+		},
+		function(data){
+			var wikiText = data.parse.wikitext["*"];
+			    var pipeSections = wikiText.split("|");
+			    var section;
+			    var numLines = pipeSections.length;
+			    var releaseDate;
+				var foundDate = false;
+			    
+			    for (var i = 0; i < numLines; i++) 
+			    {
+			    	section = pipeSections[i];
+			    	if(section.indexOf("Released ") != -1)
+			    	{
+			    		console.log("found release date: " + section);
 
-function parseReleaseDateCallback(request)
-{
-    if (request.readyState == 4) 
-    {
-        if (request.status == 200) 
-        {
-        	console.log("trying to pop release date");
-        	tryToPopulateReleaseDate(request.responseText);
-        }
-    }
-}
-
-function tryToPopulateReleaseDate(wikiText)
-{
-    //TODO: parse responseText by breaking into [pipe+space] delimited tokens, 
-    //look for "Recorded", then stop and get the date.
-    var pipeSections = wikiText.split("|");
-    var section;
-    var numLines = pipeSections.length;
-    var normalizedDate;
-	var foundDate = false;
-    
-    for (var i = 0; i < numLines; i++) 
-    {
-    	section = pipeSections[i];
-    	if(section.indexOf("Released ") != -1)
-    	{
-    		console.log("found release date: " + section);
-
-    		//TODO: remove extra stuff and normalize date info from section text
-    		normalizedDate = normalizeDate(section);
-    		foundDate = true;   		
-    	}
-    }
-    //console.log("released.innertext=" + Released.innerText);
-    if(foundDate === false && stopNow === false)
-    {
-    	stopNow = true;
-    	requestPageIds(player.track.data, true);			
-   	}
-    else if (normalizedDate !== undefined)
-    {
-		queryWikipediaForFilmsInYear(normalizedDate);
-    	getTopFourPage(normalizedDate);
-    }
-    
+			    		//TODO: remove extra stuff and normalize date info from section text
+			    		releaseDate = normalizeDate(section);
+			    		
+			    		if(typeof releaseDate !== 'undefined')
+			    		{
+			    			$("#date").text("Release date: " + releaseDate.toString('MM/dd/yyyy'));
+			    			foundDate = true;
+			    		}
+			    	}
+			    }
+			    if(foundDate === false)
+			    {
+			    	//stupid flag to prevent loop -- if false, we loop back to try searching album with ' (album)' appended to search
+				    if(stopNow === false)
+				    {
+				    	stopNow = true;
+				    	requestPageIds(player.track.data, true);			
+				   	}
+			    }
+			    else if (releaseDate !== undefined)
+			    {
+					queryWikipediaForFilmsInYear(releaseDate);
+			    	getTopFourPage(releaseDate);
+			    }
+			});
 }
 
 function normalizeDate(sectionText)
@@ -372,7 +347,6 @@ function normalizeDate(sectionText)
 	
 	console.log("trying to parse:" + normalStr);
 	var date = Date.parse(normalStr);
-	//console.log("date obj:" + date);
 	return date;
 }
 
@@ -385,18 +359,12 @@ function normalizeDate(sectionText)
 ////Released	= August 1988; Reaching Number 18    		
 ////Released	= March 1968<ref>{{cite web...    		
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 function getTopFourPage(date)
 {
-	console.log("top four" + date.toString());
 	var decade = date.toString('yy');
 	var dec = decade.charAt(0);
-	console.log("decade digit:" + dec);
 	
 	var requestStr = "http://tunecaster.com/chart" + dec + ".html";
-	//http://tunecaster.com/chart6.html
-	
 	var req = new XMLHttpRequest();
 	req.open("GET", requestStr, true);
     req.onreadystatechange = function() 
@@ -404,7 +372,6 @@ function getTopFourPage(date)
     	getTopFourList(req, date);
     };
     req.send();
-
 }
 
 function getTopFourList(request, date)
@@ -413,86 +380,73 @@ function getTopFourList(request, date)
     {
         if (request.status == 200) 
         {
-//        	console.log("about to parse top four page");
-//        	grabTopFourFromPage(request.responseText, date);
-        	
         	console.log("Month = " + date.getMonthName());
 
         	var month = date.getMonthName();
         	var year = date.toString('yyyy');
         	
-        	var divSections = request.responseText.split("<div");
-            var section;
-            var numLines = divSections.length;
-            var songs = new Array();
-            var thisSong;
-            var tmpString;
-            
-            //console.log("split into line count=" + numLines);
-            var songIdx = -1;
-            var splitStringOffset = 2
-            var maxSongs = 4;
-            
+        	//title="Top 20 Countdown
+        	var topFourStringPatt = /Top\s20\sCountdown(.)*?\s\"/g;
+			var topTwentyStrArr = request.responseText.match(topFourStringPatt);
+        	        	
+        	var section;
+            var numLines = topTwentyStrArr.length;
+            var song;
+    		var songPatt = /(\d\.\s.*?),\s(\d\.\s.*?),\s(\d\.\s.*?),\s(\d\.\s.*)\s"/g;
+           
             for (var i = 0; i < numLines; i++) 
             {
-            	section = divSections[i];
-            	
-            	if(section.indexOf(month) != -1 && section.indexOf(year) != -1)
-            	{
-            		try
-            		{
-	            		var splitByComma = section.split(",");
-
-	            		for(var j=0; j < maxSongs-1; j++)
-	            		{
-		            		thisSong = buildSong(splitByComma[splitStringOffset]);
-		            		if(typeof thisSong !== 'undefined')
-		            		{
-		            			songIdx++;
-		            			songs[songIdx] = thisSong;
-		            		}
-		            		if(songs.length >= maxSongs)
-		            		{
-		            			break;
-		            		}
-		            		splitStringOffset++;
-	            		}
-	            			
-	            		var lastSong = splitByComma[splitStringOffset].split(" href");
-	           			
-	            		var spacePos = lastSong[0].lastIndexOf(" ");
-	            		tmpString = lastSong[0].substring(0,spacePos);
-	
-	            		thisSong = buildSong(tmpString);
-	            		if(typeof thisSong !== 'undefined')
-	            		{
-	            			songIdx++;
-	            			songs[songIdx] = thisSong;
-	            		}
-	            		if(songs.length >= maxSongs)
-	            		{
-	            			break;
-	            		}
-            		}
-            		catch(error)
-            		{
-            			console.log("error adding songs:" + error);
-            		}
-            	}
+            	section = topTwentyStrArr[i];
+           		try
+           		{
+                	if(section.indexOf(month) != -1 && section.indexOf(year) != -1)
+                	{
+                		var results = songPatt.exec(section);
+                		
+                		if(results !== null)
+            			{
+                			//TODO: don't like this hard coding
+                			for(var j = 1; j <= 4; j++)
+                			{
+                				var str = results[j].substring(2, results[j].length);
+                				song = buildSong(str);
+        	            		if(typeof song !== 'undefined')
+        	            		{
+        	            			getURI(song);
+        	            		}
+                			}
+                			break;
+            			}
+                	}
+           		}
+           		catch(error)
+           		{
+           			console.log("error getting songs:" + error);
+           		}
             }
-            
-            for(var z = 0; z <= songIdx; z++)
-            {
-            	getURI(songs[z]);
-            }            
-            
         }
     }
 }
 
+function buildSong(songString)
+{
+	var s = songString.split(" by ");	
+	var songObj = { "title": s[0].trim(), "artist": s[1].trim() };
+	
+	if(s[0] !== undefined && s[1] !== undefined)
+	{
+		console.log("created song:" + songObj.artist + ":" + songObj.title);
+	}
+	else
+	{
+		console.log("undefined result from:" + songString);
+		songObj = null;
+	}
+	return songObj;
+}
+
 function getURI(song)
 {
-
     var searchStr = "track:\"" + song.title + "\" AND artist:\""+song.artist + "\"";
 
     var search = new models.Search(searchStr);
@@ -511,25 +465,4 @@ function getURI(song)
         }
     });
     search.appendNext();
-}
-
-function buildSong(songString)
-{
-	//console.log("starting with:" + songString);
-	//" 2. I'll Always Love You by Taylor Dayne"
-	var s = songString.split(". ");
-	var s2 = s[1].split(" by ");
-	
-	var songObj = { "title": s2[0], "artist": s2[1] };
-	
-	if(s2[0] !== undefined && s2[1] !== undefined)
-	{
-		console.log("created song:" + songObj.artist + ":" + songObj.title);
-	}
-	else
-	{
-		console.log("undefined result from:" + songString);
-		songObj = null;
-	}
-	return songObj;
 }
